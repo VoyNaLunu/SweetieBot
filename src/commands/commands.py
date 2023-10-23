@@ -7,10 +7,10 @@ from discord.ext import commands
 WORKDIR = os.getcwd()
 
 class UtilCommands(commands.Cog):
-    def __init__(self, bot) -> None:
+    def __init__(self, bot: discord.Bot) -> None:
         self.bot = bot
 
-    @commands.slash_command()
+    @commands.slash_command(description="shows all available commands")
     async def help(self, ctx):
         """returns list of commands"""
         embed = discord.Embed(
