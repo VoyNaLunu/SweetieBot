@@ -34,7 +34,8 @@ class UtilCommands(commands.Cog):
 def embed_image(title, description, image_url, author, post_url) -> discord.Embed:
     embed = discord.Embed(
         title=title,
-        description=description
+        description=description,
+        color=discord.Colour.purple(),
     )
     embed.set_image(url=image_url)
     embed.set_author(name=author)
