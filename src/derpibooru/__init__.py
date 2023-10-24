@@ -1,1 +1,0 @@
-from .getimages import GetImages

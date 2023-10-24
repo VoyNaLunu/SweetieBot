@@ -1,3 +1,7 @@
 help: 
   name: "/help"
   description: "shows all available commands"
+
+derpibooru:
+  name: "/derpibooru"
+  description: "search for image on Derpibooru by tags"
