@@ -2,7 +2,6 @@ import os
 import discord
 from discord.colour import Colour
 import yaml
-import discord
 from discord.ext import commands
 from philomena import ImageBoard
 import re
@@ -11,7 +10,7 @@ WORKDIR = os.getcwd()
 IMG_REGEX = r"(.*)(\.png|.jpg|.jpeg)"
 def load_commands() -> dict:
     """returns dictionary of commands and their descriptions"""
-    with open(f'{WORKDIR}/src/commands/commands.yaml', encoding="UTF-8") as data:
+    with open(f'{WORKDIR}/src/bot/commands/commands.yaml', encoding="UTF-8") as data:
         return yaml.load(data, Loader=yaml.loader.SafeLoader)
 
 COMMAND_LIST = load_commands()
@@ -52,11 +51,13 @@ class DerpibooruCommands(commands.Cog):
     async def derpibooru(self, ctx, tags):
         images = self.board.random_image(tags)
         embed = None
-        message = "I didn't find anything :("
+        message = "I couldn't find anything :("
         if "error_message" in images:
             message = "sorry something went wrong"
+        else:
+            image = images["images"][0]
         print(images)
-        if re.match(IMG_REGEX, images["images"][0]["view_url"]):
+        if re.match(IMG_REGEX, image["view_url"]):
             message = f"I found this using tags: {tags}"
             embed=embed_image("Derpibooru", f'description:\n{images["images"][0]["description"]}', images["images"][0]["view_url"], images["images"][0]["uploader"], f'{self.board.base_url}/images/{images["images"][0]["id"]}/')
         await ctx.respond(message, embed=embed)

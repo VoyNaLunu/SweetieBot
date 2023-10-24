@@ -1,56 +1,72 @@
 import random
-from typing import List
 import requests
-from . import utils
-from log import logger
+from typing import Dict, List
+from philomena.exceptions import PhilomenaAPIException
+from philomena.endpoints import endpoints, Endpoint
 
-api_logger = logger.getLogger(__name__)
+def _form_params(
+        filter_id: str=None,
+        key: str=None,
+        page: str=None,
+        per_page: str=None,
+        q: str=None,
+        sd: str=None,
+        sf: str = None) -> Dict | None:
+    """returns Philomina compatible params dict if params are provided"""
+    params = {}
+    for param, value in locals().items(): # not sure if this is a good way to do this... oh well
+        if value:
+            params[param] = value
+    if params["params"]:
+        params.pop("params")
+    return params if params else None
 
+def _format_tags(tags: List[str] | str):
+    """turns tags passed as list into single params compatible string"""
+    if isinstance(tags, list):
+        return ','.join(tags)
+    if isinstance(tags, str):
+        return tags
+    raise ValueError("tags must be a list of strings or a string")
 
 class ImageBoard():
-    def __init__(self, base_url: str, filter_id: str = "", api_key: str = "") -> None:
-        self.base_url = str(base_url)
-        self.filter_id = str(filter_id)
-        self.api_key = str(api_key)
+    """Philamina API Wrapper"""
+    def __init__(self, base_url: str, filter_id: str = None, api_key: str = None) -> None:
+        self.base_url = base_url
+        self.filter_id = filter_id
+        self._api_key = api_key
 
-    def search_images(self, query: str):
+    def _req(self, method: str, endpoint: str, params: Dict = None, data: Dict = None) -> dict:
+        """base request method"""
+        url = f'{self.base_url}{endpoint}'
         try:
-            response = requests.get(f'{self.base_url}/api/v1/json/search/images{query}')
-            response.raise_for_status()
+            response = requests.request(method=method, url=url, params=params, data=data, timeout=10)
             return response.json()
-        except requests.exceptions.HTTPError as error:
-            logger.error(error)
-            return {"error_message": error}
-    
-    def random_image(self, tags: List[str] | str, filter_id: str = "", api_key: str = "") -> dict:
-        """takes a list of tags or string of tags separated by commas to find images"""
-        if isinstance(tags, list):
-            tags = ','.join(tags)
-        params = {
-                "q": tags,
-                "per_page": "1",
-            }
-        get_pages = self.search_images(utils.form_query(params))
-        max_page = int(get_pages["total"])
-        params["page"] = random.randint(1, max_page)
-        if self.api_key:
-            params["key"] = str(self.api_key)
-        if self.filter_id:
-            params["filter_id"] = str(self.filter_id)
-        if api_key:
-            params["key"] = str(api_key)
-        if filter_id:
-            params["filter_id"] = str(filter_id)
-        return self.search_images(utils.form_query(params))
+        except requests.exceptions.RequestException as error:
+            raise PhilomenaAPIException(f"Request to {self.__class__.__name__} failed with following error:\n {error}") from error
 
-    def search_user(self, user_id: str):
-        try:
-            response = requests.get(f'{self.base_url}/api/v1/json/search/user/{user_id}')
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.HTTPError as error:
-            api_logger.error(error)
-            return {"error_message": error}
+    def _get(self, endpoint: str, params: Dict = None) -> dict:
+        """get request method"""
+        return self._req(method="GET", endpoint=endpoint, params=params)
 
-        
+    def _post(self, endpoint: str, params: Dict = None, data: Dict = None) -> dict:
+        """post request method"""
+        return self._req(method="POST", endpoint=endpoint, params=params, data=data)
+
+    def search_images(
+            self,
+            tags: List[str] | str,
+            endpoint: Endpoint=endpoints["search_images"],
+            image_count=1,
+            page=1) -> dict:
+        """returns images by tags in json format"""
+        tags = _format_tags(tags)
+        params = _form_params(filter_id=self.filter_id, key=self._api_key, page=page, per_page=image_count, q=tags)
+        return self._get(endpoint=endpoint.path, params=params)
+
+    def random_image(self, tags: List[str] | str):
+        """returns random image by tag"""
+        fetched_data = self.search_images(tags=tags)
+        max_pages = int(fetched_data["total"])
+        return self.search_images(tags=tags, page=random.randint(1, max_pages))
 
