@@ -37,12 +37,12 @@ class UtilCommands(commands.Cog):
 def embed_image(title, description, image_url, author, post_url) -> discord.Embed:
     embed = discord.Embed(
         title=title,
-        description=description,
         color=discord.Colour.purple(),
     )
-    embed.set_image(url=image_url)
     embed.set_author(name=author)
-    embed.add_field(name="Link to the post:", value=f"{post_url}")
+    embed.add_field(name="Description:", value=description, inline=False)
+    embed.add_field(name="Link to the post:", value=post_url, inline=False)
+    embed.set_image(url=image_url)
     return embed
 
 
@@ -63,5 +63,5 @@ class DerpibooruCommands(commands.Cog):
         print(images)
         if re.match(IMG_REGEX, image["view_url"]):
             message = f"I found this using tags: {tags}"
-            embed=embed_image("Derpibooru", f'description:\n{images["images"][0]["description"]}', images["images"][0]["view_url"], images["images"][0]["uploader"], f'{self.board.base_url}/images/{images["images"][0]["id"]}/')
+            embed=embed_image("Derpibooru", images["images"][0]["description"], images["images"][0]["view_url"], images["images"][0]["uploader"], f'{self.board.base_url}/images/{images["images"][0]["id"]}/')
         await ctx.respond(message, embed=embed)
