@@ -1,13 +1,16 @@
 import os
-import discord
-from discord.colour import Colour
+import re
 import yaml
+import discord
 from discord.ext import commands
 from philomena import ImageBoard
-import re
+
 
 WORKDIR = os.getcwd()
 IMG_REGEX = r"(.*)(\.png|.jpg|.jpeg|.gif)"
+VIDEO_REGEX = r"(.*)(\.mp4|.webm)"
+
+
 def load_commands() -> dict:
     """returns dictionary of commands and their descriptions"""
     with open(f'{WORKDIR}/src/bot/commands/commands.yaml', encoding="UTF-8") as data:
