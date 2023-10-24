@@ -1,9 +1,7 @@
 import os
 from dotenv import load_dotenv
 from bot import bot
-from commands import commands
-from philomena import ImageBoard
-import json
+from bot.commands import commands
 from log import logger
 
 
