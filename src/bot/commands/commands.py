@@ -7,7 +7,7 @@ from philomena import ImageBoard
 import re
 
 WORKDIR = os.getcwd()
-IMG_REGEX = r"(.*)(\.png|.jpg|.jpeg)"
+IMG_REGEX = r"(.*)(\.png|.jpg|.jpeg|.gif)"
 def load_commands() -> dict:
     """returns dictionary of commands and their descriptions"""
     with open(f'{WORKDIR}/src/bot/commands/commands.yaml', encoding="UTF-8") as data:
