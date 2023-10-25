@@ -41,6 +41,7 @@ class ImageBoard():
         url = f'{self.base_url}{endpoint}'
         try:
             response = requests.request(method=method, url=url, params=params, data=data, timeout=10)
+            response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as error:
             raise PhilomenaAPIException(f"Request to {self.__class__.__name__} failed with following error:\n {error}") from error
