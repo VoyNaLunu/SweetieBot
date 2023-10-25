@@ -71,3 +71,6 @@ class ImageBoard():
         max_pages = int(fetched_data["total"])
         return self.search_images(tags=tags, page=random.randint(1, max_pages))
 
+    def profile(self, profile_id: str | int):
+        params = _form_params(filter_id=self.filter_id, key=self._api_key)
+        return self._get(endpoint=f'{endpoints["profiles"].path}{profile_id}', params=params)
