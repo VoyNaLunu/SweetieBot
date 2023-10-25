@@ -69,6 +69,8 @@ class ImageBoard():
         """returns random image by tag"""
         fetched_data = self.search_images(tags=tags)
         max_pages = int(fetched_data["total"])
+        if max_pages == 0:
+            return None
         return self.search_images(tags=tags, page=random.randint(1, max_pages))
 
     def profile(self, profile_id: str | int):

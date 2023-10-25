@@ -73,12 +73,16 @@ class DerpibooruCommands(commands.Cog):
         uploader_avatar = None
         image_upvotes = None
         image_downvotes = None
-        message = "I couldn't find anything :("
 
-        if "error_message" in images:
+        # if else hell... i hate async
+        #TODO: do it properly???
+        if not images:
+            message = f"I couldn't find anything with tags: {tags} :("
+            await ctx.respond(message)
+        if images and "error_message" in images.keys():
             message = "sorry something went wrong"
             await ctx.respond(message)
-        else:
+        elif images:
             image = images["images"][0]
         if image:
             if image["uploader_id"]:
