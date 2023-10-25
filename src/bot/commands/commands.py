@@ -3,7 +3,7 @@ import re
 import yaml
 import discord
 from discord.ext import commands
-from philomena import ImageBoard
+import philomena
 
 
 WORKDIR = os.getcwd()
@@ -41,8 +41,8 @@ def embed_image(
         description: str | None = None,
         author: str | None = None,
         author_avatar: str | None = None,
-        image_upvotes: int | None = None,
-        image_downvotes: int | None = None) -> discord.Embed:
+        image_upvotes: int = 0,
+        image_downvotes: int = 0,
     embed = discord.Embed(
         title=title,
         color=discord.Colour.purple(),
@@ -61,11 +61,12 @@ def embed_image(
 class DerpibooruCommands(commands.Cog):
     def __init__(self, bot: discord.Bot) -> None:
         self.bot = bot
-        self.board = ImageBoard("https://derpibooru.org")
+        self.board = philomena.ImageBoard("https://derpibooru.org")
 
     @commands.slash_command(description=COMMAND_LIST['derpibooru']['description'])
     async def derpibooru(self, ctx, tags):
         await ctx.defer()
+
         images = self.board.random_image(tags)
         embed = None
         image = None
@@ -73,40 +74,36 @@ class DerpibooruCommands(commands.Cog):
         uploader_avatar = None
         image_upvotes = None
         image_downvotes = None
+        message = "sorry something went wrong"
 
-        # if else hell... i hate async
-        #TODO: do it properly???
         if not images:
-            message = f"I couldn't find anything with tags: {tags} :("
-            await ctx.respond(message)
-        if images and "error_message" in images.keys():
-            message = "sorry something went wrong"
-            await ctx.respond(message)
-        elif images:
+            message = f"I couldn't find anything with tags: `{tags}` :("
+        if images and not "error_message" in images.keys():
             image = images["images"][0]
-        if image:
-            if image["uploader_id"]:
-                uploader_id = image["uploader_id"]
-                uploader_name = image["uploader"]
-                uploader = self.board.profile(uploader_id)
-                uploader_avatar = uploader["user"]["avatar_url"]
-            message = f"I found this using tags: {tags}"
-            title = "Derpibooru"
-            description = image["description"]
-            image_url = image["view_url"]
-            post_url = f'{self.board.base_url}/images/{images["images"][0]["id"]}/'
-            image_upvotes = image["upvotes"]
-            image_downvotes = image["downvotes"]
+        else:
+            raise philomena.exceptions.DerpibooruAPIException(f"Error occured, server responded:\n{images}")
+        if image["uploader_id"]:
+            uploader_id = image["uploader_id"]
+            uploader_name = image["uploader"]
+            uploader = self.board.profile(uploader_id)
+            uploader_avatar = uploader["user"]["avatar_url"]
+        message = f"I found this using tags: `{tags}`"
+        title = "Derpibooru"
+        description = image["description"]
+        image_url = image["view_url"]
+        post_url = f'{self.board.base_url}/images/{image["id"]}/'
+        image_upvotes = image["upvotes"]
+        image_downvotes = image["downvotes"]
             
-            if re.match(IMG_REGEX, image_url):
-                embed=embed_image(
-                    title=title,
-                    description=description,
-                    image_url=image_url,
-                    post_url=post_url,
-                    author=uploader_name,
-                    author_avatar=uploader_avatar,
-                    image_upvotes = image_upvotes,
-                    image_downvotes = image_downvotes,
-                )
-                await ctx.respond(message, embed=embed)
+        if re.match(IMG_REGEX, image_url):
+            embed=embed_image(
+                title=title,
+                description=description,
+                image_url=image_url,
+                post_url=post_url,
+                author=uploader_name,
+                author_avatar=uploader_avatar,
+                image_upvotes=image_upvotes,
+                image_downvotes=image_downvotes,
+            )
+        await ctx.respond(message, embed=embed)
