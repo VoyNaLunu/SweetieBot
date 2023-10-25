@@ -114,4 +114,8 @@ class DerpibooruCommands(commands.Cog):
                 image_faves=image_faves,
                 created_at=image_created_at,
             )
+        # placeholder for video posting
+        #TODO: make prettier video posting
+        if re.match(VIDEO_REGEX, image_url):
+            message = f'{message}\n{image_url}'
         await ctx.respond(message, embed=embed)
