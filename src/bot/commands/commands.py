@@ -38,7 +38,11 @@ def embed_image(
         title: str,
         image_url: str,
         post_url: str,
-        description: str | None = None, author: str|None=None, author_avatar: str|None=None) -> discord.Embed:
+        description: str | None = None,
+        author: str | None = None,
+        author_avatar: str | None = None,
+        image_upvotes: int | None = None,
+        image_downvotes: int | None = None) -> discord.Embed:
     embed = discord.Embed(
         title=title,
         color=discord.Colour.purple(),
@@ -50,6 +54,7 @@ def embed_image(
         embed.add_field(name="Description:", value=description, inline=False)
     embed.add_field(name="Link to the post:", value=post_url, inline=False)
     embed.set_image(url=image_url)
+    embed.set_footer(text=f'⬆️ {image_upvotes} ⬇️ {image_downvotes}')
     return embed
 
 
@@ -66,6 +71,8 @@ class DerpibooruCommands(commands.Cog):
         image = None
         uploader_name = None
         uploader_avatar = None
+        image_upvotes = None
+        image_downvotes = None
         message = "I couldn't find anything :("
 
         if "error_message" in images:
@@ -82,8 +89,10 @@ class DerpibooruCommands(commands.Cog):
             message = f"I found this using tags: {tags}"
             title = "Derpibooru"
             description = image["description"]
-            image_url=image["view_url"]
-            post_url=f'{self.board.base_url}/images/{images["images"][0]["id"]}/'
+            image_url = image["view_url"]
+            post_url = f'{self.board.base_url}/images/{images["images"][0]["id"]}/'
+            image_upvotes = image["upvotes"]
+            image_downvotes = image["downvotes"]
             
             if re.match(IMG_REGEX, image_url):
                 embed=embed_image(
@@ -93,5 +102,7 @@ class DerpibooruCommands(commands.Cog):
                     post_url=post_url,
                     author=uploader_name,
                     author_avatar=uploader_avatar,
+                    image_upvotes = image_upvotes,
+                    image_downvotes = image_downvotes,
                 )
                 await ctx.respond(message, embed=embed)
