@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import re
 import yaml
@@ -43,9 +44,12 @@ def embed_image(
         author_avatar: str | None = None,
         image_upvotes: int = 0,
         image_downvotes: int = 0,
+        image_faves: int = 0,
+        created_at: str = "") -> discord.Embed:
     embed = discord.Embed(
         title=title,
         color=discord.Colour.purple(),
+        timestamp = created_at
     )
     if author:
         icon_url = author_avatar if author_avatar else ""
@@ -54,7 +58,7 @@ def embed_image(
         embed.add_field(name="Description:", value=description, inline=False)
     embed.add_field(name="Link to the post:", value=post_url, inline=False)
     embed.set_image(url=image_url)
-    embed.set_footer(text=f'⬆️ {image_upvotes} ⬇️ {image_downvotes}')
+    embed.set_footer(text=f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves}')
     return embed
 
 
@@ -94,6 +98,8 @@ class DerpibooruCommands(commands.Cog):
         post_url = f'{self.board.base_url}/images/{image["id"]}/'
         image_upvotes = image["upvotes"]
         image_downvotes = image["downvotes"]
+        image_faves = image["faves"]
+        image_created_at = datetime.strptime(image["created_at"], '%Y-%m-%dT%H:%M:%S%z')
             
         if re.match(IMG_REGEX, image_url):
             embed=embed_image(
@@ -105,5 +111,7 @@ class DerpibooruCommands(commands.Cog):
                 author_avatar=uploader_avatar,
                 image_upvotes=image_upvotes,
                 image_downvotes=image_downvotes,
+                image_faves=image_faves,
+                created_at=image_created_at,
             )
         await ctx.respond(message, embed=embed)
