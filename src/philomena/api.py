@@ -17,7 +17,7 @@ def _form_params(
     for param, value in locals().items(): # not sure if this is a good way to do this... oh well
         if value:
             params[param] = value
-    if params["params"]:
+    if "params" in params.keys():
         params.pop("params")
     return params if params else None
 
