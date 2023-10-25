@@ -5,13 +5,13 @@ from philomena.exceptions import PhilomenaAPIException
 from philomena.endpoints import endpoints, Endpoint
 
 def _form_params(
-        filter_id: str=None,
-        key: str=None,
-        page: str=None,
-        per_page: str=None,
-        q: str=None,
-        sd: str=None,
-        sf: str = None) -> Dict | None:
+        filter_id: str | None = None,
+        key: str | None = None,
+        page: str | None = None,
+        per_page: str | None = None,
+        q: str | None = None,
+        sd: str | None = None,
+        sf: str | None = None) -> Dict | None:
     """returns Philomina compatible params dict if params are provided"""
     params = {}
     for param, value in locals().items(): # not sure if this is a good way to do this... oh well
@@ -31,12 +31,12 @@ def _format_tags(tags: List[str] | str):
 
 class ImageBoard():
     """Philamina API Wrapper"""
-    def __init__(self, base_url: str, filter_id: str = None, api_key: str = None) -> None:
+    def __init__(self, base_url: str, filter_id: str | None = None, api_key: str | None = None) -> None:
         self.base_url = base_url
         self.filter_id = filter_id
         self._api_key = api_key
 
-    def _req(self, method: str, endpoint: str, params: Dict = None, data: Dict = None) -> dict:
+    def _req(self, method: str, endpoint: str, params: Dict[str, str] | None = None, data: Dict | None = None) -> dict:
         """base request method"""
         url = f'{self.base_url}{endpoint}'
         try:
@@ -46,11 +46,11 @@ class ImageBoard():
         except requests.exceptions.RequestException as error:
             raise PhilomenaAPIException(f"Request to {self.__class__.__name__} failed with following error:\n {error}") from error
 
-    def _get(self, endpoint: str, params: Dict = None) -> dict:
+    def _get(self, endpoint: str, params: Dict[str, str] | None = None) -> dict:
         """get request method"""
         return self._req(method="GET", endpoint=endpoint, params=params)
 
-    def _post(self, endpoint: str, params: Dict = None, data: Dict = None) -> dict:
+    def _post(self, endpoint: str, params: Dict[str, str] | None = None, data: Dict | None = None) -> dict:
         """post request method"""
         return self._req(method="POST", endpoint=endpoint, params=params, data=data)
 
