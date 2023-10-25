@@ -34,13 +34,20 @@ class UtilCommands(commands.Cog):
         await ctx.respond(embed=embed, ephemeral=True)
 
 
-def embed_image(title, description, image_url, author, post_url) -> discord.Embed:
+def embed_image(
+        title: str,
+        image_url: str,
+        post_url: str,
+        description: str | None = None, author: str|None=None, author_avatar: str|None=None) -> discord.Embed:
     embed = discord.Embed(
         title=title,
         color=discord.Colour.purple(),
     )
-    embed.set_author(name=author)
-    embed.add_field(name="Description:", value=description, inline=False)
+    if author:
+        icon_url = author_avatar if author_avatar else ""
+        embed.set_author(name=author, icon_url=icon_url)
+    if description:
+        embed.add_field(name="Description:", value=description, inline=False)
     embed.add_field(name="Link to the post:", value=post_url, inline=False)
     embed.set_image(url=image_url)
     return embed
@@ -53,15 +60,38 @@ class DerpibooruCommands(commands.Cog):
 
     @commands.slash_command(description=COMMAND_LIST['derpibooru']['description'])
     async def derpibooru(self, ctx, tags):
+        await ctx.defer()
         images = self.board.random_image(tags)
         embed = None
+        image = None
+        uploader_name = None
+        uploader_avatar = None
         message = "I couldn't find anything :("
+
         if "error_message" in images:
             message = "sorry something went wrong"
+            await ctx.respond(message)
         else:
             image = images["images"][0]
-        print(images)
-        if re.match(IMG_REGEX, image["view_url"]):
+        if image:
+            if image["uploader_id"]:
+                uploader_id = image["uploader_id"]
+                uploader_name = image["uploader"]
+                uploader = self.board.profile(uploader_id)
+                uploader_avatar = uploader["user"]["avatar_url"]
             message = f"I found this using tags: {tags}"
-            embed=embed_image("Derpibooru", images["images"][0]["description"], images["images"][0]["view_url"], images["images"][0]["uploader"], f'{self.board.base_url}/images/{images["images"][0]["id"]}/')
-        await ctx.respond(message, embed=embed)
+            title = "Derpibooru"
+            description = image["description"]
+            image_url=image["view_url"]
+            post_url=f'{self.board.base_url}/images/{images["images"][0]["id"]}/'
+            
+            if re.match(IMG_REGEX, image_url):
+                embed=embed_image(
+                    title=title,
+                    description=description,
+                    image_url=image_url,
+                    post_url=post_url,
+                    author=uploader_name,
+                    author_avatar=uploader_avatar,
+                )
+                await ctx.respond(message, embed=embed)
