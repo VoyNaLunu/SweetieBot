@@ -121,6 +121,6 @@ class DerpibooruCommands(commands.Cog):
             if description:
                 video_description = f'{video_description}\n** **' # doing it this way so there's no extra padding
             post_url = f'**Link to the post:**\n{post_url}\n** **'
-            stats = f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves}\n** **'
+            stats = f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves} **•** {image_created_at.strftime("%d/%m/%Y %H:%M")}\n** **'
             message = f'{message}\n{uploader_name}\n{video_description}\n{post_url}\n{stats}'
         await ctx.respond(message, embed=embed)
