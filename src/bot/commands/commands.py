@@ -78,14 +78,16 @@ class DerpibooruCommands(commands.Cog):
         uploader_avatar = None
         image_upvotes = None
         image_downvotes = None
-        message = "sorry something went wrong"
 
         if not images:
             message = f"I couldn't find anything with tags: `{tags}` :("
-        if images and not "error_message" in images.keys():
-            image = images["images"][0]
-        else:
-            raise philomena.exceptions.DerpibooruAPIException(f"Error occured, server responded:\n{images}")
+            await ctx.respond(message)
+            return
+        if "error_message" in images:
+            message = "sorry something went wrong"
+            await ctx.respond(message)
+            return
+        image = images["images"][0]
         if image["uploader_id"]:
             uploader_id = image["uploader_id"]
             uploader_name = image["uploader"]
@@ -100,7 +102,6 @@ class DerpibooruCommands(commands.Cog):
         image_downvotes = image["downvotes"]
         image_faves = image["faves"]
         image_created_at = datetime.strptime(image["created_at"], '%Y-%m-%dT%H:%M:%S%z')
-            
         if re.match(IMG_REGEX, image_url):
             embed=embed_image(
                 title=title,
