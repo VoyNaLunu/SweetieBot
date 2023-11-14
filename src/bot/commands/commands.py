@@ -115,8 +115,12 @@ class DerpibooruCommands(commands.Cog):
                 image_faves=image_faves,
                 created_at=image_created_at,
             )
-        # placeholder for video posting
-        #TODO: make prettier video posting
         if re.match(VIDEO_REGEX, image_url):
-            message = f'{message}\n{image_url}'
+            uploader_name = f'** **\n**Uploaded by:**\n**{uploader_name}**\n** **'
+            video_description = f'**Description:**\n{description}'
+            if description:
+                video_description = f'{video_description}\n** **' # doing it this way so there's no extra padding
+            post_url = f'**Link to the post:**\n{post_url}\n** **'
+            stats = f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves}\n** **'
+            message = f'{message}\n{uploader_name}\n{video_description}\n{post_url}\n{stats}'
         await ctx.respond(message, embed=embed)
