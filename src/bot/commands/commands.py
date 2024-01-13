@@ -70,13 +70,14 @@ def embed_image(
 class DerpibooruCommands(commands.Cog):
     def __init__(self, bot: discord.Bot) -> None:
         self.bot = bot
-        self.board = philomena.ImageBoard("https://derpibooru.org")
+        self.board = philomena.ImageBoard(
+            "https://derpibooru.org", filter_id=self.bot.filter_id)
 
     @commands.slash_command(description=COMMAND_LIST['derpibooru']['description'])
-    async def derpibooru(self, ctx, tags):
+    async def derpibooru(self, ctx, tags, filter_id=""):
         await ctx.defer()
 
-        images = self.board.random_image(tags)
+        images = self.board.random_image(tags, filter_id=filter_id)
         embed = None
         image = None
         uploader_name = None
