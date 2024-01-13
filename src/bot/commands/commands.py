@@ -1,4 +1,5 @@
 from datetime import datetime
+from log import logger
 import os
 import re
 import yaml
@@ -88,6 +89,8 @@ class DerpibooruCommands(commands.Cog):
             await ctx.followup.send(message)
             return
         if "error_message" in images:
+            logger.log(
+                logger.ERROR, msg=f"following error occured when requesting images: \n {images}")
             message = "sorry something went wrong"
             await ctx.followup.send(message)
             return
