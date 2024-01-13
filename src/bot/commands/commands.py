@@ -17,7 +17,9 @@ def load_commands() -> dict:
     with open(f'{WORKDIR}/src/bot/commands/commands.yaml', encoding="UTF-8") as data:
         return yaml.load(data, Loader=yaml.loader.SafeLoader)
 
+
 COMMAND_LIST = load_commands()
+
 
 class UtilCommands(commands.Cog):
     def __init__(self, bot: discord.Bot) -> None:
@@ -31,7 +33,8 @@ class UtilCommands(commands.Cog):
             color=discord.Colour.purple()
         )
         for command in COMMAND_LIST.keys():
-            embed.add_field(name=COMMAND_LIST[command]["name"], value=COMMAND_LIST[command]["description"], inline=False)
+            embed.add_field(
+                name=COMMAND_LIST[command]["name"], value=COMMAND_LIST[command]["description"], inline=False)
         await ctx.respond(embed=embed, ephemeral=True)
 
 
@@ -49,7 +52,7 @@ def embed_image(
     embed = discord.Embed(
         title=title,
         color=discord.Colour.purple(),
-        timestamp = created_at
+        timestamp=created_at
     )
     if author:
         icon_url = author_avatar if author_avatar else ""
@@ -58,7 +61,8 @@ def embed_image(
         embed.add_field(name="Description:", value=description, inline=False)
     embed.add_field(name="Link to the post:", value=post_url, inline=False)
     embed.set_image(url=image_url)
-    embed.set_footer(text=f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves}')
+    embed.set_footer(
+        text=f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves}')
     return embed
 
 
@@ -81,11 +85,11 @@ class DerpibooruCommands(commands.Cog):
 
         if not images:
             message = f"I couldn't find anything with tags: `{tags}` :("
-            await ctx.respond(message)
+            await ctx.followup.send(message)
             return
         if "error_message" in images:
             message = "sorry something went wrong"
-            await ctx.respond(message)
+            await ctx.followup.send(message)
             return
         image = images["images"][0]
         if image["uploader_id"]:
@@ -101,9 +105,10 @@ class DerpibooruCommands(commands.Cog):
         image_upvotes = image["upvotes"]
         image_downvotes = image["downvotes"]
         image_faves = image["faves"]
-        image_created_at = datetime.strptime(image["created_at"], '%Y-%m-%dT%H:%M:%S%z')
+        image_created_at = datetime.strptime(
+            image["created_at"], '%Y-%m-%dT%H:%M:%S%z')
         if re.match(IMG_REGEX, image_url):
-            embed=embed_image(
+            embed = embed_image(
                 title=title,
                 description=description,
                 image_url=image_url,
@@ -119,8 +124,9 @@ class DerpibooruCommands(commands.Cog):
             uploader_name = f'** **\n**Uploaded by:**\n**{uploader_name}**\n** **'
             video_description = f'**Description:**\n{description}'
             if description:
-                video_description = f'{video_description}\n** **' # doing it this way so there's no extra padding
+                # doing it this way so there's no extra padding
+                video_description = f'{video_description}\n** **'
             post_url = f'**Link to the post:**\n{post_url}\n** **'
             stats = f'⬆️ {image_upvotes} ⬇️ {image_downvotes} ⭐ {image_faves} **•** {image_created_at.strftime("%d/%m/%Y %H:%M")}\n** **'
             message = f'{message}\n{uploader_name}\n{video_description}\n{post_url}\n{stats}'
-        await ctx.respond(message, embed=embed)
+        await ctx.followup.send(message, embed=embed)
