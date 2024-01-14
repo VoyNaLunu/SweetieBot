@@ -4,3 +4,4 @@ pyvenv.cfg
 .env
 settings.json
 discord.log
+botdb.db
