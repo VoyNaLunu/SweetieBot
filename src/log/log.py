@@ -1,4 +1,5 @@
 import logging
+import sys
 
 logger = logging
-logger.basicConfig(filename='discord.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+logger.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
